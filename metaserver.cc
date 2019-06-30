@@ -17,8 +17,6 @@
 #include "metaserver.grpc.pb.h"
 #include <uuid/uuid.h>
 
-#include <mpi.h>
-
 #include "unistd.h"
 #include <mutex>
 #include <stdint.h> /* for uint64 definition */
@@ -27,9 +25,9 @@
 #include <map>
 #include <queue>
 
-#include "../../deps/spdlog/spdlog.h"
+#include "deps/spdlog/spdlog.h"
 
-#include "../utils/groupManager/groupManager.h"
+#include "utils/ipTool.h"
 
 #define BILLION 1000000000L
 
@@ -312,6 +310,7 @@ void writeSocket(string socketAddr)
 {
 
     //dele folder
+    //deleteDir(metaserverDir);
 
     createDir(metaserverDir);
 
@@ -367,7 +366,9 @@ int main()
     string ServerPort = to_string(freePort);
 
     string ServerIP;
-    recordIPPortWithoutFile(ServerIP);
+    //TODO send the parameter from the commandline
+    string interface = "eth0";
+    recordIPPortWithoutFile(ServerIP,interface);
 
     //start server
     RunServer(ServerIP, ServerPort);

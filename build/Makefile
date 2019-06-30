@@ -1,32 +1,14 @@
-#
-# Copyright 2015 gRPC authors.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-
-# TIPS pubsubclient will use the proto files in different folder, build that firstly if the proto files are modified
-
 # ROOT_PATH = /lustre/atlas/scratch/zw241/csc103/Software
 ROOT_PATH = /home1/zw241/Software
 LD_PATH_PROTO = $(ROOT_PATH)/grpc/third_party/protobuf/src
 LD_PATH_GRPC = $(ROOT_PATH)/grpcinstall/include
-
 INCLUDE_DEPS = /project1/parashar-001/zw241/software/eventDrivenWorkflow/deps
+
 HOST_SYSTEM = $(shell uname | cut -f 1 -d_)
 SYSTEM ?= $(HOST_SYSTEM)
 #CXX = g++ -I$(LD_PATH_PROTO) -I$(LD_PATH_GRPC) 
 CXX = mpic++ -I$(LD_PATH_PROTO) -I$(LD_PATH_GRPC) -I$(INCLUDE_DEPS)
-CPPFLAGS += `pkg-config --cflags protobuf grpc` -I/home1/zw241/Software/grpc/third_party/protobuf/src 
+CPPFLAGS += `pkg-config --cflags protobuf grpc` -I$(LD_PATH_PROTO)
 CXXFLAGS += -std=c++11 -fopenmp
 #CXXFLAGS += -std=c++11 -I../deps/  -I../deps/hiredis/ -DDEBUG
 ifeq ($(SYSTEM),Darwin)

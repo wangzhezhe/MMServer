@@ -26,11 +26,9 @@
 #include "unistd.h"
 
 #include "metaserver.grpc.pb.h"
-#include "../utils/groupManager/groupManager.h"
 #include "metaclient.h"
 
-const string projectDir = "/project1/parashar-001/zw241/software/eventDrivenWorkflow/src/metadatamanagement";
-const string metaserverDir = projectDir + "/Metaserver";
+const string metaserverDir = "./Metaserver";
 
 class MetaClient
 {
@@ -225,7 +223,8 @@ void recordKey(string key)
 
 void recordKeyStart(string key)
 {
-
+    //if use parallel file system
+    //load the addr from the file
     string serverAddr = getAddr();
 
     if (serverAddr == "")
