@@ -18,6 +18,7 @@ using metaserver::GetRequest;
 using metaserver::TimeReply;
 using metaserver::TimeRequest;
 
+using namespace std;
 
 void recordKey(string key);
 

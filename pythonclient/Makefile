@@ -8,24 +8,26 @@
 # Eli Bendersky [http://eli.thegreenplace.net]
 # This code is in the public domain.
 
-CXX = g++
-ROOT_PATH = /home1/zw241/Software
-CPPFLAGS += -I/usr/local/include -pthread -I$(ROOT_PATH)/grpc/third_party/protobuf/src -I$(ROOT_PATH)/grpcinstall/include
+
+ROOT_PATH = /ilab/users/zw241/cworkspace
+PATH_PROTO = $(ROOT_PATH)/build_protobuf
+PATH_GRPC = $(ROOT_PATH)/build_grpc
+INCLUDE_DEPS = $(ROOT_PATH)/MMServer/deps
+
+CPPFLAGS += -I$(PATH_PROTO)/include -I$(PATH_GRPC)/include -I$(INCLUDE_DEPS)
 CXXFLAGS += -std=c++11
-LDFLAGS += -L/usr/local/lib -L/usr/local/lib -L$(ROOT_PATH)/protoinstall/lib -L$(ROOT_PATH)/grpc/libs/opt/protobuf -L$(ROOT_PATH)/grpcinstall/lib -lgrpc++_unsecure -lgrpc -lprotobuf -lpthread -ldl `pkg-config --libs protobuf grpc++ grpc`
-PROTOC = /home1/zw241/Software/grpc/third_party/protobuf/src/protoc
-GRPC_CPP_PLUGIN = grpc_cpp_plugin
-GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
-GRPC_PYTHON_PLUGIN = grpc_python_plugin
-GRPC_PYTHON_PLUGIN_PATH ?= `which $(GRPC_PYTHON_PLUGIN)`
-PROTOS_PATH = ../../proto
+LDFLAGS += -L/usr/local/lib -L/usr/local/lib -L$(PATH_GRPC)/lib -L$(PATH_PROTO)/lib -Wl,-rpath $(PATH_GRPC)/lib -Wl,-rpath $(PATH_PROTO)/lib -lgrpc++_unsecure -lgrpc -lprotobuf -lpthread -ldl `pkg-config --libs protobuf grpc++ grpc`
+PROTOC = $(PATH_PROTO)/bin/protoc
+GRPC_CPP_PLUGIN = $(PATH_GRPC)/bin/grpc_cpp_plugin
+GRPC_PYTHON_PLUGIN = $(PATH_GRPC)/bin/grpc_python_plugin
+PROTOS_PATH = ../protos
 
 all: metaclient_pb2.py
 
 # Rule for producing the Python protobuf bindings
-metaclient_pb2.py: ../../proto/metaserver.proto
+metaclient_pb2.py: ../protos/metaserver.proto
 	$(PROTOC) -I $(PROTOS_PATH) --python_out=. --grpc_out=. \
-		--plugin=protoc-gen-grpc=$(GRPC_PYTHON_PLUGIN_PATH) $<
+		--plugin=protoc-gen-grpc=$(GRPC_PYTHON_PLUGIN) $<
 
 clean:
 	rm -rf $(EXECUTABLES) *.pb.cc *.pb.h *.pb.o *.o *_pb2.py *.pyc __pycache__ *_pb2_grpc.py

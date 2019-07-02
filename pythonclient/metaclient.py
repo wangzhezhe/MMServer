@@ -172,7 +172,7 @@ def getMetaspace(addr, key):
 
 def getServerAddr():
     # only for one server test case
-    serverAddrDir  = "/project1/parashar-001/zw241/software/eventDrivenWorkflow/src/metadatamanagement/Metaserver"
+    serverAddrDir  = "/ilab/users/zw241/cworkspace/MMServer/build/Metaserver"
     onlyfiles = [f for f in listdir(serverAddrDir) if isfile(join(serverAddrDir, f))]
     return onlyfiles
 

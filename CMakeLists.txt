@@ -39,3 +39,17 @@ target_link_libraries(metaserver
     gRPC::grpc++_reflection
     protobuf::libprotobuf
 )
+
+add_executable(metaclient ./metaclient.cc ./utils/ipTool.cpp
+    ${PROTO_SRCS}
+    ${GRPC_SRCS}
+)
+
+target_include_directories(metaclient PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/deps>
+)
+
+target_link_libraries(metaclient
+    gRPC::grpc++_reflection
+    protobuf::libprotobuf
+)

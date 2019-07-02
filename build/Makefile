@@ -1,58 +1,48 @@
-# ROOT_PATH = /lustre/atlas/scratch/zw241/csc103/Software
-ROOT_PATH = /home1/zw241/Software
-LD_PATH_PROTO = $(ROOT_PATH)/grpc/third_party/protobuf/src
-LD_PATH_GRPC = $(ROOT_PATH)/grpcinstall/include
-INCLUDE_DEPS = /project1/parashar-001/zw241/software/eventDrivenWorkflow/deps
+ROOT_PATH = /ilab/users/zw241/cworkspace
+PATH_PROTO = $(ROOT_PATH)/build_protobuf
+PATH_GRPC = $(ROOT_PATH)/build_grpc
+INCLUDE_DEPS = $(ROOT_PATH)/MMServer/deps
+INCLUDE_BUILD = $(ROOT_PATH)/MMServer/build
 
 HOST_SYSTEM = $(shell uname | cut -f 1 -d_)
 SYSTEM ?= $(HOST_SYSTEM)
-#CXX = g++ -I$(LD_PATH_PROTO) -I$(LD_PATH_GRPC) 
-CXX = mpic++ -I$(LD_PATH_PROTO) -I$(LD_PATH_GRPC) -I$(INCLUDE_DEPS)
-CPPFLAGS += `pkg-config --cflags protobuf grpc` -I$(LD_PATH_PROTO)
-CXXFLAGS += -std=c++11 -fopenmp
-#CXXFLAGS += -std=c++11 -I../deps/  -I../deps/hiredis/ -DDEBUG
-ifeq ($(SYSTEM),Darwin)
-LDFLAGS += -L/usr/local/lib -L/home1/zw241/Software/protoinstall/lib -L/home1/zw241/Software/grpc/libs/opt/protobuf -L/home1/zw241/Software/grpcinstall/lib `pkg-config --libs protobuf grpc++ grpc`\
-           -lgrpc++_reflection\
-           -ldl -lpthread -lgpr
-else
-LDFLAGS += -L/usr/local/lib -L$(ROOT_PATH)/grpcinstall/lib -L$(ROOT_PATH)/grpc/libs/opt/protobuf -I$(LD_PATH) `pkg-config --libs protobuf grpc++ grpc`\
+CXX = g++ -std=c++11 -I$(PATH_PROTO)/include -I$(PATH_GRPC)/include -I$(INCLUDE_DEPS) -I$(INCLUDE_BUILD)
+CPPFLAGS += `pkg-config --cflags protobuf grpc`
+
+
+LDFLAGS += -L$(PATH_GRPC)/lib -L$(PATH_PROTO)/lib -Wl,-rpath $(PATH_GRPC)/lib -Wl,-rpath $(PATH_PROTO)/lib `pkg-config --libs protobuf grpc++ grpc`\
            -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed\
            -ldl -lpthread -lgpr -luuid -fopenmp -luuid 
-endif
-PROTOC = /home1/zw241/Software/grpc/third_party/protobuf/src/protoc
-GRPC_CPP_PLUGIN = grpc_cpp_plugin
-GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
+		   
+PROTOC = $(PATH_PROTO)/bin/protoc
+GRPC_CPP_PLUGIN = $(PATH_GRPC)/bin/grpc_cpp_plugin
 
-PROTOS_PATH = ../proto
+PROTOS_PATH = ../protos
 
 vpath %.proto $(PROTOS_PATH)
 
 all: metaserver metaclient
 
+ipTool.o:
+	$(CXX) $(CPPFLAGS) -c -o ipTool.o ../utils/ipTool.cpp
 
-dlm.o:
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o dlm.o ../utils/dlm/dlm.cc
 
-groupManager.o:
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o groupManager.o ../utils/groupManager/groupManager.cpp
+metaserver: metaserver.pb.o metaserver.grpc.pb.o ipTool.o ../metaserver.cc
+	$(CXX) $^ $(CPPFLAGS) $(LDFLAGS) -o $@
 
-metaserver: metaserver.pb.o metaserver.grpc.pb.o groupManager.o dlm.o metaserver.o 
-	$(CXX) $^ $(LDFLAGS) -o $@
-
-metaclient: metaserver.pb.o metaserver.grpc.pb.o groupManager.o dlm.o metaclient.o 
-	$(CXX) $^ $(LDFLAGS) -o $@
+metaclient: metaserver.pb.o metaserver.grpc.pb.o ipTool.o ../metaclient.cc
+	$(CXX) $^ $(CPPFLAGS) $(LDFLAGS) -o $@
 
 .PRECIOUS: %.grpc.pb.cc
 %.grpc.pb.cc: %.proto
-	$(PROTOC) -I $(PROTOS_PATH) --grpc_out=. --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<
+	$(PROTOC) -I$(PROTOS_PATH) --grpc_out=. --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN) $<
 
 .PRECIOUS: %.pb.cc
 %.pb.cc: %.proto
-	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=. $<
+	$(PROTOC) -I$(PROTOS_PATH) --cpp_out=. $<
 
 clean:
-	rm -rf *.o *.pb.cc *.pb.h metaserver metaclient Metaserver
+	rm -rf *.o *.pb.cc *.pb.h metaserver metaclient
 
 
 # The following is to test your system and ensure a smoother experience.

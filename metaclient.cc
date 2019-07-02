@@ -27,7 +27,9 @@
 
 #include "metaserver.grpc.pb.h"
 #include "metaclient.h"
+#include "utils/ipTool.h"
 
+using namespace std;
 const string metaserverDir = "./Metaserver";
 
 class MetaClient
@@ -262,7 +264,7 @@ void recordKeyTick(string key)
     return;
 }
 
-/*
+
 int main(int argc, char **argv)
 {
     // Instantiate the client. It requires a channel, out of which the actual RPCs
@@ -332,4 +334,3 @@ int main(int argc, char **argv)
 
     return 0;
 }
-*/

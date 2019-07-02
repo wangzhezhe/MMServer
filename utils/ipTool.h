@@ -1,6 +1,3 @@
-
-
-
 #ifndef IPTOOL_H
 #define IPTOOL_H
 
@@ -21,6 +18,8 @@ void recordIPPortWithoutFile(string &ipstr,string INTERFACE);
 void createDir(string DirPath);
 
 void deleteDir(string DirPath);
+
+vector<string> loadAddrInDir(string Dir);
 
 int getFreePortNum();
 
