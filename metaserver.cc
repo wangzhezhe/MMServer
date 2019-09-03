@@ -273,8 +273,8 @@ class MetaServiceImpl final : public Meta::Service
         }
         else
         {
-
-            printf("key (%s) with meta (%s) is stored yet\n", key.data(), meta.data());
+            //TODO add the update interface, which will update the key anyway
+            printf("key (%s) with meta (%s) is stored already\n", key.data(), meta.data());
         }
 
         reply->set_message("OK");

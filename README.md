@@ -82,3 +82,4 @@ for pythonclient, install the grpc and protocol for python firstly, then execute
 
 ### TODO List
   - delete addr folder before start
+  - add the update interface, which will update the key anyway
