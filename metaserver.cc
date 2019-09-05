@@ -89,17 +89,17 @@ class MetaServiceImpl final : public Meta::Service
         //record the time
         struct timespec start, end;
         double diff;
+        tmutex.lock();
         if (timerMap.find(key) == timerMap.end())
         {
             // not found
             // insert key
 
             clock_gettime(CLOCK_REALTIME, &start);
-            tmutex.lock();
+            
             timerMap[key] = start;
-            tmutex.unlock();
-
-            printf("key (%s) start timing\n", key.data());
+            
+            std::cout<<"key (" << key << ")start timing" << std::endl;
         }
         else
         {
@@ -108,14 +108,14 @@ class MetaServiceImpl final : public Meta::Service
             // output
 
             clock_gettime(CLOCK_REALTIME, &end);
-            tmutex.lock();
+
             start = timerMap[key];
             timerMap.erase(key);
-            tmutex.unlock();
 
             diff = (end.tv_sec - start.tv_sec) * 1.0 + (end.tv_nsec - start.tv_nsec) * 1.0 / BILLION;
-            printf("key (%s) end timing, time (%lf)\n", key.data(), diff);
+            std::cout<<"key (" << key << ") end timing, time " << diff <<std::endl;
         }
+        tmutex.unlock();
 
         reply->set_message("OK");
         return Status::OK;
@@ -136,17 +136,16 @@ class MetaServiceImpl final : public Meta::Service
         {
             // not found
             // insert key
-
             clock_gettime(CLOCK_REALTIME, &start);
             tmutex.lock();
             timerMap[key] = start;
             tmutex.unlock();
 
-            printf("key (%s) start timing\n", key.data());
+            std::cout << "key (" << key << ") start timing" << std::endl;
         }
         else
         {
-            printf("key (%s) is timing\n", key.data());
+            std::cout << "key (" << key << ") is timing"<<std::endl;
         }
         reply->set_message("OK");
         return Status::OK;
@@ -168,7 +167,7 @@ class MetaServiceImpl final : public Meta::Service
         {
             // not found
             // insert key
-            printf("key (%s) is not start timing yet\n", key.data());
+            std::cout<<"key ("<<key<<") is not start timing yet"<<std::endl;
         }
         else
         {
@@ -182,7 +181,7 @@ class MetaServiceImpl final : public Meta::Service
             tmutex.unlock();
 
             diff = (tick.tv_sec - start.tv_sec) * 1.0 + (tick.tv_nsec - start.tv_nsec) * 1.0 / BILLION;
-            printf("key (%s) tick, time (%lf)\n", key.data(), diff);
+            std::cout<<"key ("<<key<<") tick, time "<<diff<<std::endl;
         }
 
         reply->set_message("OK");
@@ -274,7 +273,7 @@ class MetaServiceImpl final : public Meta::Service
         else
         {
             //TODO add the update interface, which will update the key anyway
-            printf("key (%s) with meta (%s) is stored already\n", key.data(), meta.data());
+            std::cout<<"key ("<<key<<") with meta ("<<meta<<") is stored already"<<std::endl;
         }
 
         reply->set_message("OK");
@@ -321,7 +320,7 @@ void writeSocket(string socketAddr)
 
     if (fpt == NULL)
     {
-        printf("failed to create %s\n", addrFile);
+        std::cout<<"failed to create " << addrFile <<std::endl;
         return;
     }
 
@@ -358,7 +357,7 @@ void RunServer(string serverIP, string serverPort)
     server->Wait();
 }
 
-int main()
+int main(int argc, char *argv[])
 {
 
     int freePort = getFreePortNum();
@@ -367,7 +366,14 @@ int main()
 
     string ServerIP;
     //TODO send the parameter from the commandline
-    string interface = "eth0";
+    //eno1
+
+    if (argc!=2){
+        std::cout << "<server> <interface>" <<std::endl;
+        return 0;
+    }
+
+    std::string interface = argv[1];
     recordIPPortWithoutFile(ServerIP,interface);
 
     //start server
