@@ -1,26 +1,45 @@
-#ifndef metaclient_h
-#define metaclient_h
+#ifndef __METACLIENT_H__
+#define __METACLIENT_H__
 
-#include "metaserver.grpc.pb.h"
+#include <vector>
+#include <iostream>
+#include <string>
+#include <array>
+#include <fstream>
+#include <string>
+#include "common.h"
+#include <thallium.hpp>
 
-using grpc::Channel;
-using grpc::ClientContext;
-using grpc::Status;
+namespace tl = thallium;
 
-using metaserver::Meta;
+//write server addr into this folder
+const std::string metaserverDir = "Metaserver_conf";
 
-using metaserver::PutReply;
-using metaserver::PutRequest;
+struct MetaClient
+{
+    MetaClient(){};
+    //for server enginge, the client ptr is the pointer to the server engine
+    //for the client code, the client engine is the pointer to the engine with the client mode
+    MetaClient(tl::engine *clientEnginePtr)
+    {
+        m_clientEnginePtr = clientEnginePtr;
+        m_masterAddr = loadMasterAddr(metaserverDir);
+    };
+    std::string m_masterAddr;
+    tl::engine *m_clientEnginePtr = NULL;
+    ~MetaClient(){};
 
-using metaserver::GetReply;
-using metaserver::GetRequest;
+    void Recordtime(std::string recordkey);
 
-using metaserver::TimeReply;
-using metaserver::TimeRequest;
+    void Recordtimestart(std::string recordkey);
 
-using namespace std;
+    void Recordtimetick(std::string recordkey);
 
-void recordKey(string key);
+    void hello();
 
+    std::string loadMasterAddr(std::string masterConfigFile);
+
+
+};
 
 #endif

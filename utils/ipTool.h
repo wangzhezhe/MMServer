@@ -23,4 +23,6 @@ vector<string> loadAddrInDir(string Dir);
 
 int getFreePortNum();
 
+std::string getClientAdddr(std::string deviceType, std::string MargoAddr);
+
 #endif

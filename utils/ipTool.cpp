@@ -26,7 +26,6 @@
 #include <set>
 
 #include "ipTool.h"
-#include "spdlog/spdlog.h"
 
 
 using namespace std;
@@ -90,17 +89,6 @@ void recordIPPortWithoutFile(string &ipstr, string INTERFACE)
 
     ipstr = string(ip);
     return;
-}
-
-void deleteDir(string DirPath)
-{
-
-    if (rmdir(DirPath.data()) != 0)
-    {
-        spdlog::info("failed to remove dir: {}", DirPath.data());
-    }
-
-    exit(0);
 }
 
 void createDir(string DirPath)
@@ -218,4 +206,16 @@ string parseIP(string peerURL)
     peerURL.erase(startPosition, len - startPosition);
 
     return peerURL;
+}
+
+std::string getClientAdddr(std::string deviceType, std::string MargoAddr){
+    
+
+    //get contents after the 
+    
+    std::string filteredAddr = MargoAddr.substr(MargoAddr.find(":"), MargoAddr.size());
+    //combine it together with the deviceType
+    std::string addrForClient = deviceType+filteredAddr;
+    
+    return addrForClient;
 }

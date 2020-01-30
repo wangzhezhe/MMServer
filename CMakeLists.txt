@@ -1,57 +1,45 @@
-project(MMServer)
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required (VERSION 3.14)
+project (MMserver C CXX)
+set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_CXX_COMPILER g++)
+set (CMAKE_C_COMPILER gcc)
 
-add_compile_options(-std=c++11)
 
-# GRPC and Protocol Buffers libraries location
-list(APPEND CMAKE_PREFIX_PATH 
-"/home/zw241/cworkspace/install/install_grpc" 
-"/home/zw241/cworkspace/install/install_protobuf")
+# add our cmake module directory to the path
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
+     "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-# Cmake find modules
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+# link shared lib with full rpath
+set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-find_package(Protobuf REQUIRED)
-find_package(GRPC REQUIRED)
+# setup cache variables for ccmake
+if (NOT CMAKE_BUILD_TYPE)
+    set (CMAKE_BUILD_TYPE Release
+         CACHE STRING "Choose the type of build." FORCE)
+    set_property (CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS 
+                  "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
+endif ()
+set (CMAKE_PREFIX_PATH "" CACHE STRING "External dependencies path")
+set (BUILD_SHARED_LIBS "OFF" CACHE BOOL "Build a shared library")
 
-# use the source dir here
-set(PROTOS
-    ${CMAKE_CURRENT_SOURCE_DIR}/protos/metaserver.proto
-)
-
-# use the binary dir here
-set(PROTO_SRC_DIR ${CMAKE_CURRENT_BINARY_DIR}/proto-src)
-file(MAKE_DIRECTORY ${PROTO_SRC_DIR})
-include_directories(${PROTO_SRC_DIR})
-
-protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_SRC_DIR} ${PROTOS})
-grpc_generate_cpp(GRPC_SRCS GRPC_HDRS ${PROTO_SRC_DIR} ${PROTOS})
+# packages we depend on (load all the necessary depedency by spack)
+include (xpkg-import)
+find_package (mercury REQUIRED)
+include_directories(${MERCURY_INCLUDE_DIR})
+xpkg_import_module (argobots REQUIRED argobots)
+xpkg_import_module (margo REQUIRED margo)
+xpkg_import_module (abtio REQUIRED abt-io)
+find_package (thallium REQUIRED)
 
 # Building server
-add_executable(metaserver ./metaserver.cc ./utils/ipTool.cpp
-    ${PROTO_SRCS}
-    ${GRPC_SRCS}
-)
+add_executable(metaserver ./metaserver.cpp ./utils/ipTool.cpp)
+target_link_libraries(metaserver thallium)
 
-target_include_directories(metaserver PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/deps>
-)
+# Build client
+add_library(metaclient ./metaclient.cpp)
+target_link_libraries(metaclient thallium)
 
-target_link_libraries(metaserver
-    gRPC::grpc++_reflection
-    protobuf::libprotobuf
-)
-
-add_executable(metaclient ./metaclient.cc ./utils/ipTool.cpp
-    ${PROTO_SRCS}
-    ${GRPC_SRCS}
-)
-
-target_include_directories(metaclient PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/deps>
-)
-
-target_link_libraries(metaclient
-    gRPC::grpc++_reflection
-    protobuf::libprotobuf
-)
+# Building test
+add_executable(testclient ./test/testclient.cpp)
+target_link_libraries(testclient metaclient)

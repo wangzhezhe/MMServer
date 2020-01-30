@@ -6,8 +6,8 @@ Metadata Management Server (MMServer) is a simple server for meta data managemen
 
 ### Build
 
-The only depedency for this project is the grpc and protobuf.
-Refer to [this](https://github.com/IvanSafonov/grpc-cmake-example) about building grpc and protocol buffer
+This branch use the mochi as the rpc service instead of the gRPC (there are some issues of installing on HPC for grpc sometimes), refer to [this](https://xgitlab.cels.anl.gov/sds/mochi-boot-camp/blob/master/anl-2019/sessions/s2-hands-on/README.md) about the installing of the mochi software stack
+
 
 **CMake**
 
