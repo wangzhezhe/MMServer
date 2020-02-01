@@ -3,15 +3,21 @@
 #include "../metaclient.h"
 #include "unistd.h"
 
-int main()
+int main(int argc, char *argv[])
 {
+    if (argc != 2)
+    {
 
-    tl::engine clientEnginge("verbs", THALLIUM_CLIENT_MODE);
+        std::cerr << "Usage: testclient protocol" << std::endl;
+        exit(0);
+    }
+    std::string protocol = std::string(argv[1]);
+
+    tl::engine clientEnginge(protocol, THALLIUM_CLIENT_MODE);
     MetaClient *metaclient = new MetaClient(&clientEnginge);
 
     metaclient->hello();
 
-    
     std::string testkey1("test1");
     metaclient->Recordtime(testkey1);
     sleep(1);
@@ -22,5 +28,4 @@ int main()
     metaclient->Recordtimestart(testkey2);
     sleep(1);
     metaclient->Recordtimetick(testkey2);
-    
 }

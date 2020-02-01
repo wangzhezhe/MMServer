@@ -42,4 +42,13 @@ target_link_libraries(metaclient thallium)
 
 # Building test
 add_executable(testclient ./test/testclient.cpp)
-target_link_libraries(testclient metaclient)
+target_link_libraries(testclient metaclient thallium)
+
+
+# Building hellotest
+add_executable(testhelloserver ./test/testhelloserver.cpp)
+target_link_libraries(testhelloserver thallium)
+
+# Building hellotest
+add_executable(testhelloclient ./test/testhelloclient.cpp)
+target_link_libraries(testhelloclient thallium)

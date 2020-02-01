@@ -134,6 +134,9 @@ void runRerver(std::string networkingType)
     globalServerEnginePtr->define("recordtimetick", recordtimetick);
 
     std::string serverAddr = serverEnginge.self();
+    
+    std::cout << "original addr: " << serverAddr << std::endl;
+
     std::string simplifiedAddr = getClientAdddr(networkingType, serverAddr);
     std::ofstream confFile;
     confFile.open(metaserverDir);
@@ -145,6 +148,13 @@ void runRerver(std::string networkingType)
 int main(int argc, char *argv[])
 {
     //start server
-    runRerver("verbs");
+    if (argc != 2)
+    {
+
+        std::cerr << "Usage: metaserver protocol" << std::endl;
+        exit(0);
+    }
+    std::string protocol = std::string(argv[1]);
+    runRerver(protocol);
     return 0;
 }
