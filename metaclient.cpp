@@ -19,8 +19,6 @@ void MetaClient::hello()
     return;
 }
 
-
-
 void MetaClient::Recordtime(std::string recordkey)
 {
     tl::remote_procedure remoteRecordtime = this->m_clientEnginePtr->define("recordtime");

@@ -11,7 +11,6 @@
 #include <thallium.hpp>
 
 namespace tl = thallium;
-
 //write server addr into this folder
 const std::string metaserverDir = "Metaserver_conf";
 
@@ -22,6 +21,8 @@ struct MetaClient
     //for the client code, the client engine is the pointer to the engine with the client mode
     MetaClient(tl::engine *clientEnginePtr)
     {
+        //load the cred if use the cray
+
         m_clientEnginePtr = clientEnginePtr;
         m_masterAddr = loadMasterAddr(metaserverDir);
     };

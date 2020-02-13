@@ -1,8 +1,8 @@
 cmake_minimum_required (VERSION 3.14)
 project (MMserver C CXX)
 set (CMAKE_CXX_STANDARD 14)
-set (CMAKE_CXX_COMPILER g++)
-set (CMAKE_C_COMPILER gcc)
+# it is ok to build with debug pattern for drc, not sure why
+set (CMAKE_BUILD_TYPE Debug)
 
 
 # add our cmake module directory to the path
@@ -32,23 +32,54 @@ xpkg_import_module (margo REQUIRED margo)
 xpkg_import_module (abtio REQUIRED abt-io)
 find_package (thallium REQUIRED)
 
-# Building server
-add_executable(metaserver ./metaserver.cpp ./utils/ipTool.cpp)
-target_link_libraries(metaserver thallium)
+option(USE_GNI "use cray gni" OFF)
+set (DRC_LIBRARIES " ")
+
+
 
 # Build client
 add_library(metaclient ./metaclient.cpp)
 target_link_libraries(metaclient thallium)
 
-# Building test
-add_executable(testclient ./test/testclient.cpp)
-target_link_libraries(testclient metaclient thallium)
+if(USE_GNI)
+  add_definitions(-DUSE_GNI)
+  find_package(DRC REQUIRED)
+  include_directories(${DRC_INCLUDE_DIRS})
+  message ("use cray DRC")
+  message ("include drc" ${DRC_INCLUDE_DIRS})
+  message ("link drc lib" ${DRC_LIBRARIES})
+
+  # Building server
+  add_executable(metaserver ./metaserver.cpp ./utils/ipTool.cpp)
+  target_link_libraries(metaserver thallium ${DRC_LIBRARIES})
+
+  # Building testclient
+  # put the drc libraries at the first position
+  add_executable(testclient ./test/testclient.cpp)
+  target_link_libraries(testclient ${DRC_LIBRARIES} metaclient thallium)
+
+  add_executable(testhelloserver ./test/testhelloserver.cpp ./utils/ipTool.cpp)
+  target_link_libraries(testhelloserver thallium ${DRC_LIBRARIES})
+
+  add_executable(testhelloclient ./test/testhelloclient.cpp)
+  target_link_libraries(testhelloclient ${DRC_LIBRARIES} metaclient thallium)
+
+else()
+
+  # Building server
+  add_executable(metaserver ./metaserver.cpp ./utils/ipTool.cpp)
+  target_link_libraries(metaserver thallium)
+
+  # Building test
+  # put the drc libraries at the first position
+  add_executable(testclient ./test/testclient.cpp)
+  target_link_libraries(testclient metaclient thallium)
+
+  add_executable(testhelloserver ./test/testhelloserver.cpp ./utils/ipTool.cpp)
+  target_link_libraries(testhelloserver thallium )
+
+  add_executable(testhelloclient ./test/testhelloclient.cpp)
+  target_link_libraries(testhelloclient metaclient thallium)
 
 
-# Building hellotest
-add_executable(testhelloserver ./test/testhelloserver.cpp)
-target_link_libraries(testhelloserver thallium)
-
-# Building hellotest
-add_executable(testhelloclient ./test/testhelloclient.cpp)
-target_link_libraries(testhelloclient thallium)
+endif()
